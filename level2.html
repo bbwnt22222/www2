@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>SDGs 性別平權-情境題</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('https://i.imgur.com/4zQnKhU.jpg'); /* 遊樂園背景 */
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    overflow: hidden;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: rgba(0,128,0,0.8);
+    color: white;
+    font-weight: bold;
+}
+#game-container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 50px);
+}
+
+/* 花朵 icon */
+.flower {
+    position: absolute;
+    font-size: 60px;
+    color: #ff69b4;
+    cursor: pointer;
+}
+
+/* 拖放區 */
+.drag-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+/* 標題 */
+.drag-modal h4 {
+    margin: 0;
+    text-align: center;
+}
+
+/* 拖放區容器 */
+.drop-zone {
+    width: 90%;
+    min-height: 80px;
+    background: rgba(200,200,200,0.2);
+    border: 2px dashed #333;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 5px;
+}
+
+/* 可拖動元素 */
+.draggable {
+    padding: 6px 12px;
+    background: #ffddaa;
+    border-radius: 5px;
+    cursor: grab;
+    user-select: none;
+    text-align: center;
+}
+
+/* 結果彈窗 */
+#result-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    display: none;
+    width: 300px;
+    text-align: center;
+    z-index: 1001;
+}
+
+#result-modal button {
+    margin-top: 10px;
+    padding: 5px 20px;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+<header>
+    <div>SDGs 性別平權-情境題</div>
+    <div>答對題數: <span id="score">0</span>/6</div>
+</header>
+
+<div id="game-container">
+    <!-- 三朵花 icon -->
+    <i class="fas fa-seedling flower" id="flower1"></i>
+    <i class="fas fa-seedling flower" id="flower2"></i>
+    <i class="fas fa-seedling flower" id="flower3"></i>
+</div>
+
+<!-- 結果彈窗 -->
+<div id="result-modal">
+    <h3 id="result-text"></h3>
+    <button id="retry-btn" style="display:none;">再次挑戰</button>
+    <button id="certificate-btn" style="display:none;" onclick="location.href='certificate.html'">下載學習證書</button>
+</div>
+
+<script>
+const questions = [
+    { items: ["女性不該參加科學課程","男女皆可報名科學課程"], correct: ["男女皆可報名科學課程"] },
+    { items: ["男性也應該做家事","家務是女性的責任"], correct: ["男性也應該做家事"] },
+    { items: ["女性不能當領導者","能力不分性別，皆可領導"], correct: ["能力不分性別，皆可領導"] }
+];
+
+let answeredCount = 0;
+let score = 0;
+const scoreDisplay = document.getElementById('score');
+const flowers = document.querySelectorAll('.flower');
+
+// 隨機位置花朵
+flowers.forEach(flower => {
+    flower.style.top = `${Math.random()*40 + 50}%`;
+    flower.style.left = `${Math.random()*70 + 10}%`;
+});
+
+flowers.forEach((flower, index) => {
+    flower.addEventListener('click', () => openQuestion(index));
+});
+
+function openQuestion(index){
+    const q = questions[index];
+    const modal = document.createElement('div');
+    modal.classList.add('drag-modal');
+
+    modal.innerHTML = `
+        <h4>將下列行為或語句拖入「性別平等」或「不平等」框</h4>
+        <div id="equal" class="drop-zone">性別平等</div>
+        <div id="unequal" class="drop-zone">不平等</div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // 建立可拖動元素
+    q.items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'draggable';
+        div.textContent = item;
+        div.draggable = true;
+        div.addEventListener('dragstart', e => e.dataTransfer.setData('text', item));
+        modal.appendChild(div);
+    });
+
+    // 拖放事件
+    ['equal','unequal'].forEach(id=>{
+        const dropZone = document.getElementById(id);
+        dropZone.addEventListener('dragover', e=>e.preventDefault());
+        dropZone.addEventListener('drop', e=>{
+            e.preventDefault();
+            const data = e.dataTransfer.getData('text');
+            const dragged = Array.from(modal.getElementsByClassName('draggable'))
+                                .find(d=>d.textContent===data);
+            if(dragged) e.target.appendChild(dragged);
+        });
+    });
+
+    // 確認按鈕
+    const submitBtn = document.createElement('button');
+    submitBtn.textContent = '確認';
+    submitBtn.addEventListener('click', ()=>{
+        q.items.forEach(item=>{
+            if(q.correct.includes(item)){
+                const parent = document.getElementById('equal');
+                if(parent && Array.from(parent.children).some(c=>c.textContent===item)) score++;
+            } else {
+                const parent = document.getElementById('unequal');
+                if(parent && Array.from(parent.children).some(c=>c.textContent===item)) score++;
+            }
+        });
+        answeredCount++;
+        scoreDisplay.textContent = score;
+        modal.remove();
+
+        if(answeredCount===questions.length) showResult();
+    });
+    modal.appendChild(submitBtn);
+}
+
+const resultModal = document.getElementById('result-modal');
+const resultText = document.getElementById('result-text');
+const retryBtn = document.getElementById('retry-btn');
+const certificateBtn = document.getElementById('certificate-btn');
+
+function showResult(){
+    resultModal.style.display = 'block';
+    if(score<=2){
+        resultText.textContent = `再加油！你答對 ${score} 題`;
+        retryBtn.style.display = 'inline-block';
+    } else if(score<=4){
+        resultText.textContent = `進步中！你答對 ${score} 題`;
+        retryBtn.style.display = 'inline-block';
+    } else {
+        resultText.textContent = `平權達人！你答對 ${score} 題`;
+        certificateBtn.style.display = 'inline-block';
+    }
+}
+
+retryBtn.addEventListener('click', ()=>location.reload());
+</script>
+</body>
+</html>

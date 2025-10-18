@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>SDGs 性別平權學習證書</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f2e7;
+}
+.certificate-container {
+    width: 800px;
+    margin: 50px auto;
+    padding: 40px;
+    border: 10px solid #4CAF50;
+    border-radius: 15px;
+    background-color: white;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    position: relative;
+}
+h1 {
+    font-size: 36px;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+h2 {
+    font-size: 28px;
+    margin: 20px 0;
+}
+#name-display {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    margin: 20px 0;
+}
+input[type="text"] {
+    font-size: 18px;
+    padding: 5px 10px;
+    width: 250px;
+    margin-top: 10px;
+}
+button {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+@media print {
+    input, button {
+        display: none;
+    }
+}
+</style>
+</head>
+<body>
+<div class="certificate-container">
+    <h1>SDGs 性別平權小達人</h1>
+    <h2>證書持有人：</h2>
+    <div id="name-display">[請輸入姓名]</div>
+    <input type="text" id="name-input" placeholder="輸入姓名">
+    <br>
+    <button id="update-name">確認姓名</button>
+    <br>
+    <button id="download-btn">下載 / 列印證書</button>
+</div>
+
+<script>
+const nameInput = document.getElementById('name-input');
+const nameDisplay = document.getElementById('name-display');
+const updateBtn = document.getElementById('update-name');
+const downloadBtn = document.getElementById('download-btn');
+
+// 更新姓名
+updateBtn.addEventListener('click', ()=>{
+    const name = nameInput.value.trim();
+    if(name){
+        nameDisplay.textContent = name;
+    } else {
+        alert('請輸入姓名！');
+    }
+});
+
+// 列印 / 下載
+downloadBtn.addEventListener('click', ()=>{
+    window.print();
+});
+</script>
+</body>
+</html>
